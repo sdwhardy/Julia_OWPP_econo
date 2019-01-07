@@ -1,5 +1,5 @@
-include("functions_data.jl")
-include("functions_eens.jl")
+include("data/functions_data.jl")
+include("eens/functions_eens.jl")
 owpp_bools=getOWPP_bools()
 owpp_data=getOWPP_data()
 equip_data=getEQP_data()
