@@ -95,6 +95,9 @@ function getXFO_basics(xfmr,S,num,kV)
     else
         xfmr.mva=S/num
     end
+    #############
+    #xfmr.mva=150.0
+    ###############
     xfmr.num=num
     xfmr.amp=xfmr.mva/(kV*sqrt(3))
     xfmr.volt=kV
@@ -124,6 +127,9 @@ function getCBL_data(kV,size,km,mva,cap_fact,freq)
     end
     #Set number of cables in parallel
     cbl_data.num=ceil((mva*cap_fact)/cbl_data.mva)
+#########################
+    #cbl_data.num=1
+#########################
     #Set failure data
     getCBL_fail(cbl_data)
     #scale for return

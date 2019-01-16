@@ -9,10 +9,13 @@ function main()
     dataIn=basic_data()
     #initilaize OWPP
     myOWPP=newFarm(dataIn)
-    display(myOWPP.eqp.cbl_pcc)
-    display(myOWPP)
+    #display(myOWPP)
+    #EENS calc
+    eens=getEENS(myOWPP)
+    #display(eens)
 end
 main()
+
 #owpp_bools=getOWPP_bools()
 #myOWPP=getOWPP_data()
 

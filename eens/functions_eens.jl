@@ -1,13 +1,15 @@
 ###############################################################
-function getEENS(owpp_bools, owpp_data, equip_data, fail_data, wind_data)
+function getEENS(owpp)
 #make capacity probability table
-    cpt_tbl=CPT(owpp_bools, owpp_data, equip_data, fail_data)
+    cpt_tbl=CPT(owpp)
 #extract owpp data
-    S_pcc=owpp_data[1]
-    E_op=owpp_data[2]
-    lifetime=owpp_data[3]
+    S_pcc=owpp.plant.mw
+    E_op=owpp.plant.E_op
+    lifetime=owpp.plant.lifetime
+    pu=owpp.wind.pu
 #Create eens array
     eens_all=[]
+    #eens_alla=[]
     eens=0.0
     #println(length(wind_data[:,1]))
 #find curtailment ratio
@@ -15,25 +17,24 @@ function getEENS(owpp_bools, owpp_data, equip_data, fail_data, wind_data)
         ratio_curt=cpt_tbl[i,1]/S_pcc
         #println(ratio_curt)
 #find closest wind data to curtail ratio
-        diff=wind_data[:,1].-ratio_curt
+        diff=pu.-ratio_curt
         i_min=argmin(sqrt.((diff[:]).^2))
         #println(i_min)
         #println(diff[i_min])
         if i_min == length(diff) && diff[i_min]<0
             ce=0
         elseif i_min == 1 && diff[i_min]>0
-            ce=wind_data[1,2]
+            ce=owpp.wind.ce[1]
         elseif i_min < length(diff) && diff[i_min]<0
-            ce=inter_pole(ratio_curt,wind_data[i_min,1],wind_data[i_min+1,1],wind_data[i_min,2],wind_data[i_min+1,2])
+            ce=inter_pole(ratio_curt,pu[i_min],pu[i_min+1],owpp.wind.ce[i_min],owpp.wind.ce[i_min+1])
         elseif i_min > 1 && diff[i_min]>0
-            ce=inter_pole(ratio_curt,wind_data[i_min-1,1],wind_data[i_min,1],wind_data[i_min-1,2],wind_data[i_min,2])
+            ce=inter_pole(ratio_curt,pu[i_min-1],pu[i_min],owpp.wind.ce[i_min-1],owpp.wind.ce[i_min])
         else
-            ce=wind_data[i_min,2]
+            ce=owpp.wind.ce[i_min]
         end
-        #display(ce)
         push!(eens_all, ce*S_pcc*cpt_tbl[i,2])
+
     end
-    #display(eens_all[:,1])
     eens=sum(eens_all)*lifetime*E_op
     return eens
 end
@@ -67,42 +68,42 @@ function blank_TBL(rows,clms)
     return XFM_CBL
 end
 #######################################################
-function CPT(owpp_bools, owpp_data, equip_data, fail_data)
+function CPT(owpp)
 #unpack owpp data
-    S_owpp=owpp_data[1]
-    ac=owpp_bools[1]
-    x_plat=owpp_bools[2]
+    S_owpp=owpp.plant.mw
+    ac=owpp.plant.ac
+    x_plat=owpp.plant.x_plat
 #unpack equipment data
-    S_xfm_pcc=equip_data[1]
-    n_xfm_pcc=equip_data[2]
-    S_xfm_oss=equip_data[3]
-    n_xfm_oss=equip_data[4]
-    l_cbl_pcc=equip_data[5]
-    n_cbl_pcc=equip_data[6]
-    S_cbl_pcc=equip_data[7]
-    l_cbl_oss=equip_data[8]
-    n_cbl_oss=equip_data[9]
-    S_cbl_oss=equip_data[10]
+    S_xfm_pcc=owpp.eqp.xfm_pcc.mva
+    n_xfm_pcc=owpp.eqp.xfm_pcc.num
+    S_xfm_oss=owpp.eqp.xfm_oss.mva
+    n_xfm_oss=owpp.eqp.xfm_oss.num
+    l_cbl_pcc=owpp.eqp.cbl_pcc.length
+    n_cbl_pcc=owpp.eqp.cbl_pcc.num
+    S_cbl_pcc=owpp.eqp.cbl_pcc.mva
+    l_cbl_oss=owpp.eqp.cbl_oss.length
+    n_cbl_oss=owpp.eqp.cbl_oss.num
+    S_cbl_oss=owpp.eqp.cbl_oss.mva
 #Unpack failure data
-    FR_c_pcc=(fail_data[1]/100.0)*l_cbl_pcc
+    FR_c_pcc=(owpp.eqp.cbl_pcc.fr/100.0)*l_cbl_pcc
     if ac==true && x_plat==true
-        FR_c_oss=(fail_data[1]/100.0)*l_cbl_oss
+        FR_c_oss=(owpp.eqp.cbl_oss.fr/100.0)*l_cbl_oss
     elseif ac==false && x_plat==true
-        FR_c_oss=(fail_data[1]/100.0)*5.0
+        FR_c_oss=(owpp.eqp.cbl_oss.fr/100.0)*5.0
     else
-        FR_c_oss=0
+        FR_c_oss=0.0
     end
-    MTTR_c=fail_data[2]
-    mc_c=fail_data[3]
-    FR_t_pcc=fail_data[4]
-    MTTR_t_pcc=fail_data[5]
-    mc_t_pcc=fail_data[6]
-    FR_t_oss=fail_data[7]
-    MTTR_t_oss=fail_data[8]
-    mc_t_oss=fail_data[9]
-    FR_cv=fail_data[10]
-    MTTR_cv=fail_data[11]
-    mc_cv=fail_data[12]
+    MTTR_c=owpp.eqp.cbl_pcc.mttr
+    mc_c=owpp.eqp.cbl_pcc.mc
+    FR_t_pcc=owpp.eqp.xfm_pcc.fr
+    MTTR_t_pcc=owpp.eqp.xfm_pcc.mttr
+    mc_t_pcc=owpp.eqp.xfm_pcc.mc
+    FR_t_oss=owpp.eqp.xfm_oss.fr
+    MTTR_t_oss=owpp.eqp.xfm_oss.mttr
+    mc_t_oss=owpp.eqp.xfm_oss.mc
+    FR_cv=owpp.eqp.xfm_oss.fr
+    MTTR_cv=owpp.eqp.xfm_oss.mttr
+    mc_cv=owpp.eqp.xfm_oss.mc
 #Calculate Availability of cables and xformers/converters
     A_c_pcc=1.0/(1.0+FR_c_pcc*(MTTR_c*30.0*24.0/8760.0))
     A_c_oss=1.0/(1.0+FR_c_oss*(MTTR_c*30.0*24.0/8760.0))
@@ -110,6 +111,7 @@ function CPT(owpp_bools, owpp_data, equip_data, fail_data)
     A_t_oss=1.0/(1.0+FR_t_oss*(MTTR_t_oss*30.0*24.0/8760.0))
     A_cv=1.0/(1.0+FR_cv*(MTTR_cv*30.0*24.0/8760.0))
 #Create combinatorial matrix of 0s and 1s
+#println(n_xfm_pcc,n_xfm_oss,n_cbl_pcc,n_cbl_oss)
     clms=trunc(Int, n_xfm_pcc+n_xfm_oss+n_cbl_pcc+n_cbl_oss)
     rows=trunc(Int, 2.0^clms)
     XFM_CBL=blank_TBL(rows,clms)
@@ -201,7 +203,7 @@ function CPT(owpp_bools, owpp_data, equip_data, fail_data)
             P5=0.0
 #Notify AC sytem setup error
         else
-            error("AC sytem setup failure!")
+            error("AC eens sytem setup failure!")
         end
 #DC option
     elseif ac==false
@@ -247,11 +249,11 @@ function CPT(owpp_bools, owpp_data, equip_data, fail_data)
             P5=S_xfm_oss
 #If neither cheap nor expensive DC an error has occured
         else
-            error("DC sytem setup failure!")
+            error("DC eens sytem setup failure!")
         end
 #If neither AC or DC an error has occured
     else
-        error("AC/DC sytem error!")
+        error("AC/DC eens sytem error!")
     end
 #Set powers and availabilities
     k=1

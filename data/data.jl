@@ -7,13 +7,13 @@ function basic_data()
     #OWPP capacity
     mva=300.0
     #capacity factor of opwp equipment
-    cap_fact=0.72
+    cap_fact=1.0
     #System frequency
     freq=50.0
     #onshore grid voltage
-    kV_pcc=220.0
+    kV_pcc=132.0
     #owpp transmission voltage
-    kV_oss=220.0
+    kV_oss=132.0
     #OWPP distance from shore to (1st) platform
     km_pcc=50.0
     #Distance from 1st to 2nd platform
@@ -36,7 +36,8 @@ end
 function cblOPT()
     #Possible cables
     #%kV,cm^2,mohms/km,nF/km,Amps,10^3 pounds/km
-    cb0=[220,500,48.9,136,732,815]
+    #cb0=[220,500,48.9,136,732,815]
+    cb0=[132,1000,48.9,10,945,815]
     cb1=[220,630,39.1,151,808,850]
     cb2=[220,800,31.9,163,879,975]
     cb3=[220,1000,27.0,177,942,1000]
@@ -52,7 +53,7 @@ end
 function getCBL_fail(cbl)
     #failure data
     #cables
-    cbl.fr=0.08#/yr/100km
+    cbl.fr=0.04#/yr/100km
     cbl.mttr=2.0#/yr/100km
     cbl.mc=0.56
     return nothing
@@ -70,8 +71,8 @@ end
 function getOSS_fail(xfm)
     #failure data
     #Converters
-    xfm.fr=0.56#/yr
-    xfm.mttr=1#month
+    xfm.fr=0.03#/yr
+    xfm.mttr=6.0#month
     xfm.mc=2.8#
     return nothing
 end
