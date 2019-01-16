@@ -1,7 +1,7 @@
 ###################################################################
-mutable struct initialize_data
+struct initialize_data
    #ac:true, dc:false
-   acdc::Bool
+   ac::Bool
    #compensation platform(ac) or ac collection(dc)?
    x_plat::Bool
    #OWPP capacity
@@ -80,9 +80,8 @@ mutable struct eqp
      xfm_oss::xfm
      cbl_oss::cbl
      xfm_x_plat::xfm
-     cbl_x_plat::cbl
 end
-eqp()=eqp(xfm(),cbl(),xfm(),cbl(),xfm(),cbl())
+eqp()=eqp(xfm(),cbl(),xfm(),cbl(),xfm())
 ###################################################
 mutable struct wind
      pu::Array{Float64}

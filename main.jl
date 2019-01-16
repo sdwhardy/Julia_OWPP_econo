@@ -3,11 +3,16 @@ include("data/structure.jl")
 include("data/functions.jl")
 include("eens/functions_eens.jl")
 #include("cost/functions_cost.jl")
-#OWPP basic data
-dataIn=basic_data()
-#initilaize OWPP
-myOWPP=newFarm(dataIn)
-display(myOWPP.eqp.cbl_pcc)
+
+function main()
+    #OWPP basic data
+    dataIn=basic_data()
+    #initilaize OWPP
+    myOWPP=newFarm(dataIn)
+    display(myOWPP.eqp.cbl_pcc)
+    display(myOWPP)
+end
+main()
 #owpp_bools=getOWPP_bools()
 #myOWPP=getOWPP_data()
 
