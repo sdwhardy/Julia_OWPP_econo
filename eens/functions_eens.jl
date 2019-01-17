@@ -3,7 +3,7 @@ function getEENS(owpp)
 #make capacity probability table
     cpt_tbl=CPT(owpp)
 #extract owpp data
-    S_pcc=owpp.plant.mw
+    S_pcc=owpp.plant.mva
     E_op=owpp.plant.E_op
     lifetime=owpp.plant.lifetime
     pu=owpp.wind.pu
@@ -36,7 +36,8 @@ function getEENS(owpp)
 
     end
     eens=sum(eens_all)*lifetime*E_op
-    return eens
+    owpp.cost.eens=eens
+    return nothing
 end
 ###############################################################
 function inter_pole(true_x,min_x,max_x,min_y,max_y)
@@ -70,7 +71,7 @@ end
 #######################################################
 function CPT(owpp)
 #unpack owpp data
-    S_owpp=owpp.plant.mw
+    S_owpp=owpp.plant.mva
     ac=owpp.plant.ac
     x_plat=owpp.plant.x_plat
 #unpack equipment data

@@ -24,13 +24,36 @@ function basic_data()
     cbl_oss=0.0
     #number of parralle xformers
     num_xfm=2
-    #Energy price
-    E_op=56.0*10^(-6)
-    #OWPP lifetime
-    life=15.0
+    #power factor
+    pf=1.0
     #initialize
-    dataIn=initialize_data(acdc,x_plat,mva,cap_fact,freq,kV_pcc,kV_oss,km_pcc,km_oss,cbl_pcc,cbl_oss,num_xfm,E_op,life)
+    dataIn=initialize_data(acdc,x_plat,mva,cap_fact,freq,kV_pcc,kV_oss,km_pcc,km_oss,cbl_pcc,cbl_oss,num_xfm,pf)
    return dataIn
+end
+#################################################################
+function getCost_ks(ks)
+    #fixed AC cost
+        FC_ac=5.6
+    #fixed AC cost
+        FC_dc=28.0
+    #penalization factor for different than 2 xfrms
+        dc=0.2
+    #plant variable cost
+        f_ct=0.0224
+    #platform variable cost
+        p_ct=0.028
+    #Q cost offshore
+        Qc_oss=0.028
+    #Q cost onshore
+        Qc_pcc=0.0168
+    #lifetime
+        life=15.0
+    #Operational lifetime in hours
+        T_op=365*24*life
+    #Energy price
+        E_op=56.0*10^(-6)
+    ks=cst_ks(FC_ac,FC_dc,dc,f_ct,p_ct,Qc_oss,Qc_pcc,life,T_op,E_op)
+    return nothing
 end
 #################################################################
 function cblOPT()
@@ -102,6 +125,7 @@ function invEta()
 end
 ########################################################
 function getWIND_data(wind)
+wind.delta=0.23
 wind.pu=[0.002815
 0.013872
 0.030803

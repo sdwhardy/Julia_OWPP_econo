@@ -4,47 +4,48 @@ function newFarm(dataIn)
     myOWPP=owpp()
     #Set plant variables
     getPLANT_data(myOWPP.plant, dataIn)
+    getCost_ks(myOWPP.cst_ks)
     #Set equipment
     #Set CableS
     if dataIn.x_plat==false
         myOWPP.eqp.cbl_pcc=getCBL_data(dataIn.kV_pcc,dataIn.cbl_pcc,dataIn.km_pcc,dataIn.mva,dataIn.cap_fact,dataIn.freq)
-        mva=myOWPP.eqp.cbl_pcc.mva*myOWPP.eqp.cbl_pcc.num
+        myOWPP.plant.mva_oss=myOWPP.eqp.cbl_pcc.mva*myOWPP.eqp.cbl_pcc.num
     else
         myOWPP.eqp.cbl_pcc=getCBL_data(dataIn.kV_pcc,dataIn.cbl_oss,dataIn.km_pcc,dataIn.mva,dataIn.cap_fact,dataIn.freq)
         myOWPP.eqp.cbl_oss=getCBL_data(dataIn.kV_oss,dataIn.cbl_pcc,dataIn.km_oss,dataIn.mva,dataIn.cap_fact,dataIn.freq)
-        mva=min(myOWPP.eqp.cbl_oss.mva*myOWPP.eqp.cbl_oss.num,myOWPP.eqp.cbl_pcc.mva*myOWPP.eqp.cbl_pcc.num)
+        myOWPP.plant.mva_oss=min(myOWPP.eqp.cbl_oss.mva*myOWPP.eqp.cbl_oss.num,myOWPP.eqp.cbl_pcc.mva*myOWPP.eqp.cbl_pcc.num)
     end
     #Set Xfrmers
     #AC transmission, no intermediate platform transmission = grid voltage
     if dataIn.ac==true && dataIn.kV_oss==dataIn.kV_pcc && dataIn.x_plat==false
-        myOWPP.eqp.xfm_pcc=getXPCC_data(mva,0,dataIn.kV_oss)
-        myOWPP.eqp.xfm_oss=getXOSS_data(mva,dataIn.num_xfm,dataIn.kV_oss)
-        myOWPP.eqp.xfm_x_plat=getXPLT_data(mva,0.0,dataIn.kV_oss)
+        myOWPP.eqp.xfm_pcc=getXPCC_data(myOWPP.plant.mva_oss,0,dataIn.kV_oss)
+        myOWPP.eqp.xfm_oss=getXOSS_data(myOWPP.plant.mva_oss,dataIn.num_xfm,dataIn.kV_oss)
+        myOWPP.eqp.xfm_x_plat=getXPLT_data(myOWPP.plant.mva_oss,0.0,dataIn.kV_oss)
     #AC transmission, intermediate platform transmission = grid voltage
     elseif dataIn.ac==true && dataIn.kV_oss==dataIn.kV_pcc && dataIn.x_plat==true
-        myOWPP.eqp.xfm_pcc=getXPCC_data(dataIn.mva,0.0,dataIn.kV_oss)
-        myOWPP.eqp.xfm_oss=getXOSS_data(dataIn.mva,dataIn.num_xfm,dataIn.kV_oss)
-        myOWPP.eqp.x_plat=getXPLT_data(dataIn.mva,1.0,dataIn.kV_oss)
+        myOWPP.eqp.xfm_pcc=getXPCC_data(myOWPP.plant.mva_oss,0.0,dataIn.kV_oss)
+        myOWPP.eqp.xfm_oss=getXOSS_data(myOWPP.plant.mva_oss,dataIn.num_xfm,dataIn.kV_oss)
+        myOWPP.eqp.x_plat=getXPLT_data(myOWPP.plant.mva_oss,1.0,dataIn.kV_oss)
     #AC transmission, no intermediate platform transmission != grid voltage
     elseif dataIn.ac==true && dataIn.kV_oss!=dataIn.kV_pcc && dataIn.x_plat==false
-        myOWPP.eqp.xfm_pcc=getXPCC_data(dataIn.mva,dataIn.num_xfm,dataIn.kV_oss)
-        myOWPP.eqp.xfm_oss=getXOSS_data(dataIn.mva,dataIn.num_xfm,dataIn.kV_oss)
-        myOWPP.eqp.x_plat=getXPLT_data(dataIn.mva,0.0,dataIn.kV_oss)
+        myOWPP.eqp.xfm_pcc=getXPCC_data(myOWPP.plant.mva_oss,dataIn.num_xfm,dataIn.kV_oss)
+        myOWPP.eqp.xfm_oss=getXOSS_data(myOWPP.plant.mva_oss,dataIn.num_xfm,dataIn.kV_oss)
+        myOWPP.eqp.x_plat=getXPLT_data(myOWPP.plant.mva_oss,0.0,dataIn.kV_oss)
     #AC transmission, intermediate platform transmission != grid voltage
     elseif dataIn.ac==true && dataIn.kV_oss!=dataIn.kV_pcc && dataIn.x_plat==true
-        myOWPP.eqp.xfm_pcc=getXPCC_data(dataIn.mva,dataIn.num_xfm,dataIn.kV_oss)
-        myOWPP.eqp.xfm_oss=getXOSS_data(dataIn.mva,dataIn.num_xfm,dataIn.kV_oss)
-        myOWPP.eqp.x_plat=getXPLT_data(dataIn.mva,1.0,dataIn.kV_oss)
+        myOWPP.eqp.xfm_pcc=getXPCC_data(myOWPP.plant.mva_oss,dataIn.num_xfm,dataIn.kV_oss)
+        myOWPP.eqp.xfm_oss=getXOSS_data(myOWPP.plant.mva_oss,dataIn.num_xfm,dataIn.kV_oss)
+        myOWPP.eqp.x_plat=getXPLT_data(myOWPP.plant.mva_oss,1.0,dataIn.kV_oss)
     #DC transmission, no intermediate platform
     elseif dataIn.ac==false && dataIn.x_plat==false
-        myOWPP.eqp.xfm_pcc=getCPCC_data(dataIn.mva,dataIn.num_xfm,dataIn.kV_oss)
-        myOWPP.eqp.xfm_oss=getCOSS_data(dataIn.mva,dataIn.num_xfm,dataIn.kV_oss)
-        myOWPP.eqp.x_plat=getXPLT_data(dataIn.mva,0.0,dataIn.kV_oss)
+        myOWPP.eqp.xfm_pcc=getCPCC_data(myOWPP.plant.mva_oss,dataIn.num_xfm,dataIn.kV_oss)
+        myOWPP.eqp.xfm_oss=getCOSS_data(myOWPP.plant.mva_oss,dataIn.num_xfm,dataIn.kV_oss)
+        myOWPP.eqp.x_plat=getXPLT_data(myOWPP.plant.mva_oss,0.0,dataIn.kV_oss)
     #DC transmission, AC collection platform
     else dataIn.ac==false && dataIn.x_plat==true
-        myOWPP.eqp.xfm_pcc=getCPCC_data(dataIn.mva,dataIn.num_xfm,dataIn.kV_oss)
-        myOWPP.eqp.xfm_oss=getCOSS_data(dataIn.mva,dataIn.num_xfm,dataIn.kV_oss)
-        myOWPP.eqp.x_plat=getXPLT_data(dataIn.mva,1.0,dataIn.kV_oss)
+        myOWPP.eqp.xfm_pcc=getCPCC_data(myOWPP.plant.mva_oss,dataIn.num_xfm,dataIn.kV_oss)
+        myOWPP.eqp.xfm_oss=getCOSS_data(myOWPP.plant.mva_oss,dataIn.num_xfm,dataIn.kV_oss)
+        myOWPP.eqp.x_plat=getXPLT_data(myOWPP.plant.mva_oss,1.0,dataIn.kV_oss)
     end
     getWIND_data(myOWPP.wind)
     return myOWPP
@@ -77,7 +78,7 @@ function getCOSS_data(S,num,kV)
     xfmr=xfm()
     getXFO_basics(xfmr,S,num,kV)
     getCONV_fail(xfmr)
-    xfmr.eta=xfoEta()
+    xfmr.eta=recEta()
     return xfmr
 end
 ########################################################
@@ -156,11 +157,7 @@ function getPLANT_data(plant,data)
     #compensation plat(ac)/ac collection(dc)?
     x_plat=data.x_plat
     #Size (MW)
-    plant.mw=data.mva
-    #Cost of energy
-    plant.E_op=data.E_op
-    #plant lifetime
-    plant.lifetime=data.life
+    plant.mva=data.mva
     #electrical frequency
     plant.freq=data.freq
     #distance from shore
