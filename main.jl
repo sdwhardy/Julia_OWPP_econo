@@ -1,6 +1,6 @@
 include("data/data.jl")
 include("data/structure.jl")
-include("data/functions.jl")
+include("data/functions_data.jl")
 include("cost/functions_cost.jl")
 include("eens/functions_eens.jl")
 
@@ -10,12 +10,10 @@ function main()
     dataIn=basic_data()
     #initilaize OWPP
     myOWPP=newFarm(dataIn)
-    #getCost(myOWPP)
+    costOWPP(myOWPP)
 
-    #display(myOWPP)
-    #EENS calc
-    getEENS(myOWPP)
-    display(myOWPP.cost.eens)
+    display(myOWPP)
+    display(myOWPP.cost.results)
 end
 main()
 

@@ -5,25 +5,25 @@ function basic_data()
     #compensation platform(ac) or ac collection(dc)?
     x_plat=false
     #OWPP capacity
-    mva=300.0
+    mva=500.0
     #capacity factor of opwp equipment
     cap_fact=1.0
     #System frequency
     freq=50.0
     #onshore grid voltage
-    kV_pcc=132.0
+    kV_pcc=220.0
     #owpp transmission voltage
-    kV_oss=132.0
+    kV_oss=400.0
     #OWPP distance from shore to (1st) platform
     km_pcc=50.0
     #Distance from 1st to 2nd platform
     km_oss=0.0
     #transmission cable size
-    cbl_pcc=1000.0
+    cbl_pcc=800.0
     #2nd cable size for extra platform
-    cbl_oss=0.0
+    cbl_oss=800.0
     #number of parralle xformers
-    num_xfm=2
+    num_xfm=1
     #power factor
     pf=1.0
     #initialize
@@ -31,7 +31,7 @@ function basic_data()
    return dataIn
 end
 #################################################################
-function getCost_ks(ks)
+function getCost_ks()
     #fixed AC cost
         FC_ac=5.6
     #fixed AC cost
@@ -53,14 +53,14 @@ function getCost_ks(ks)
     #Energy price
         E_op=56.0*10^(-6)
     ks=cst_ks(FC_ac,FC_dc,dc,f_ct,p_ct,Qc_oss,Qc_pcc,life,T_op,E_op)
-    return nothing
+    return ks
 end
 #################################################################
 function cblOPT()
     #Possible cables
     #%kV,cm^2,mohms/km,nF/km,Amps,10^3 pounds/km
-    #cb0=[220,500,48.9,136,732,815]
-    cb0=[132,1000,48.9,10,945,815]
+    cb0=[220,500,48.9,136,732,815]
+    #cb0=[132,1000,48.9,10,945,815]
     cb1=[220,630,39.1,151,808,850]
     cb2=[220,800,31.9,163,879,975]
     cb3=[220,1000,27.0,177,942,1000]

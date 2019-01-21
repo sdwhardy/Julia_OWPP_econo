@@ -28,36 +28,6 @@ struct initialize_data
    pf::Float64
 end
 ###################################################################
-mutable struct cst_ks
-   FC_ac::Float64
-   FC_dc::Float64
-   dc::Float64
-   f_ct::Float64
-   p_ct::Float64
-   Qc_oss::Float64
-   Qc_pcc::Float64
-   life::Float64
-   T_op::Float64
-   E_op::Float64
-end
-cst_ks()=cst_ks(0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0)
-###################################################################
-mutable struct plant
-   ac::Bool
-   x_plat::Bool
-   mva::Float64
-   mva_pcc::Float64
-   mva_oss::Float64
-   E_op::Float64
-   lifetime::Float64
-   freq::Float64
-   length::Float64
-end
-plant()=plant(true,false,300,300,300,56*10^(-6),15.0,50.0,100.0)
-plant(x)=plant(true,false,x,x,x,56*10^(-6),15.0,50.0,100.0)
-plant(x,y)=plant(x,false,y,y,y,56*10^(-6),15.0,50.0,100.0)
-plant(x,y,z)=plant(x,y,z,z,z,56*10^(-6),15.0,50.0,100.0)
-###################################################################
 mutable struct cbl
    mva::Float64
    length::Float64
@@ -88,6 +58,52 @@ mutable struct xfm
 end
 xfm()=xfm(0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0)
 ###################################################
+mutable struct results
+     oppc::Float64
+     opc::Float64
+     tlc_pcc::Float64
+     tlc_oss::Float64
+     qc::Float64
+     cbc::Float64
+     rlc::Float64
+     mc::Float64
+     eens::Float64
+end
+results()=results(0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0)
+###################################################
+mutable struct cst_ks
+   FC_ac::Float64
+   FC_dc::Float64
+   dc::Float64
+   f_ct::Float64
+   p_ct::Float64
+   Qc_oss::Float64
+   Qc_pcc::Float64
+   life::Float64
+   T_op::Float64
+   E_op::Float64
+end
+cst_ks()=cst_ks(0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0)
+###################################################################
+mutable struct plant
+   ac::Bool
+   x_plat::Bool
+   mva::Float64
+   mva_pcc::Float64
+   mva_oss::Float64
+   kV_pcc::Float64
+   kV_oss::Float64
+   pf::Float64
+   E_op::Float64
+   lifetime::Float64
+   freq::Float64
+   length::Float64
+end
+plant()=plant(true,false,300.0,300.0,300.0,220.0,220.0,1.0,56.0*10^(-6),15.0,50.0,100.0)
+#plant(x)=plant(true,false,x,x,x,56*10^(-6),15.0,50.0,100.0)
+#plant(x,y)=plant(x,false,y,y,y,56*10^(-6),15.0,50.0,100.0)
+#plant(x,y,z)=plant(x,y,z,z,z,56*10^(-6),15.0,50.0,100.0)
+###################################################
 mutable struct eqp
      xfm_pcc::xfm
      cbl_pcc::cbl
@@ -105,24 +121,16 @@ end
 wind()=wind([],[],0.0)
 ###################################################
 mutable struct cost
-     oppc::Float64
-     opc::Float64
-     tlc_pcc::Float64
-     tlc_oss::Float64
-     qc::Float64
-     cbc::Float64
-     rlc::Float64
-     mc::Float64
-     eens::Float64
+     results::results
+     cst_ks::cst_ks
 end
-cost()=cost(0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0)
+cost()=cost(results(),cst_ks())
 ###################################################
 mutable struct owpp
    plant::plant
    eqp::eqp
    wind::wind
    cost::cost
-   cst_ks::cst_ks
 end
-owpp()=owpp(plant(),eqp(),wind(),cost(),cst_ks())
-###################################################
+owpp()=owpp(plant(),eqp(),wind(),cost())
+###################################################################

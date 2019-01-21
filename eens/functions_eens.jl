@@ -36,7 +36,7 @@ function getEENS(owpp)
 
     end
     eens=sum(eens_all)*lifetime*E_op
-    owpp.cost.eens=eens
+    owpp.cost.results.eens=eens
     return nothing
 end
 ###############################################################
