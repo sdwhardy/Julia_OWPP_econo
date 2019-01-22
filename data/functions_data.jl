@@ -5,7 +5,6 @@ function newFarm(dataIn)
     #Set plant variables
     getPLANT_data(myOWPP.plant, dataIn)
     myOWPP.cost.cst_ks=getCost_ks()
-    println(myOWPP.cost.cst_ks)
     #Set equipment
     #Set CableS
     if dataIn.x_plat==false

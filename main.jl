@@ -11,9 +11,11 @@ function main()
     #initilaize OWPP
     myOWPP=newFarm(dataIn)
     costOWPP(myOWPP)
-
-    display(myOWPP)
+    #display(myOWPP)
+    display(myOWPP.eqp)
     display(myOWPP.cost.results)
+    ttl=cst_ttl(myOWPP.cost.results)
+    display(ttl)
 end
 main()
 

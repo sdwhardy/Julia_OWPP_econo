@@ -3,7 +3,8 @@ function getEENS(owpp)
 #make capacity probability table
     cpt_tbl=CPT(owpp)
 #extract owpp data
-    S_pcc=owpp.plant.mva
+    mva=owpp.plant.mva
+    mva_pcc=owpp.plant.mva_pcc
     E_op=owpp.plant.E_op
     lifetime=owpp.plant.lifetime
     pu=owpp.wind.pu
@@ -14,7 +15,8 @@ function getEENS(owpp)
     #println(length(wind_data[:,1]))
 #find curtailment ratio
     for i=1:length(cpt_tbl[:,1])
-        ratio_curt=cpt_tbl[i,1]/S_pcc
+        ratio_curt=cpt_tbl[i,1]/mva
+        println(ratio_curt)
         #println(ratio_curt)
 #find closest wind data to curtail ratio
         diff=pu.-ratio_curt
@@ -32,7 +34,7 @@ function getEENS(owpp)
         else
             ce=owpp.wind.ce[i_min]
         end
-        push!(eens_all, ce*S_pcc*cpt_tbl[i,2])
+        push!(eens_all, ce*mva_pcc*cpt_tbl[i,2])
 
     end
     eens=sum(eens_all)*lifetime*E_op

@@ -11,17 +11,17 @@ function basic_data()
     #System frequency
     freq=50.0
     #onshore grid voltage
-    kV_pcc=220.0
+    kV_pcc=400.0
     #owpp transmission voltage
     kV_oss=400.0
     #OWPP distance from shore to (1st) platform
-    km_pcc=50.0
+    km_pcc=55.0
     #Distance from 1st to 2nd platform
-    km_oss=0.0
+    km_oss=5.0
     #transmission cable size
     cbl_pcc=800.0
     #2nd cable size for extra platform
-    cbl_oss=800.0
+    cbl_oss=500.0
     #number of parralle xformers
     num_xfm=1
     #power factor
@@ -52,7 +52,9 @@ function getCost_ks()
         T_op=365*24*life
     #Energy price
         E_op=56.0*10^(-6)
-    ks=cst_ks(FC_ac,FC_dc,dc,f_ct,p_ct,Qc_oss,Qc_pcc,life,T_op,E_op)
+    #Capitalization factor
+        cf=10
+    ks=cst_ks(FC_ac,FC_dc,dc,f_ct,p_ct,Qc_oss,Qc_pcc,life,T_op,E_op,cf)
     return ks
 end
 #################################################################

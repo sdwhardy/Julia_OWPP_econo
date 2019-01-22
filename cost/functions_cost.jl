@@ -5,10 +5,10 @@ function costOWPP(owpp)
     delta=owpp.wind.delta
     res=owpp.cost.results
     k=owpp.cost.cst_ks
-    xfm_pcc=owpp.eqp.xfm_oss
+    xfm_pcc=owpp.eqp.xfm_pcc
     xfm_oss=owpp.eqp.xfm_oss
     cbl_pcc=owpp.eqp.cbl_pcc
-    cbl_oss=owpp.eqp.cbl_pcc
+    cbl_oss=owpp.eqp.cbl_oss
     cst_fct=k.T_op*k.E_op*delta
     #AC transmission, no intermediate platform transmission = grid voltage
     if plt.ac==true && plt.kV_oss==plt.kV_pcc && plt.x_plat==false
@@ -19,6 +19,8 @@ function costOWPP(owpp)
         res.rlc=HVAC_rlc(cbl_pcc,xfm_oss.eta,plt,cst_fct)
         res.opc=0.0
         res.tlc_pcc=0.0
+        res.cm=HVAC_cm(xfm_oss.num,xfm_oss.mc,xfm_oss.fr,xfm_oss.mttr,k.cf)
+        res.cm=res.cm+HVAC_cm(cbl_pcc.num,cbl_pcc.mc,cbl_pcc.fr,cbl_pcc.mttr,k.cf)
     #AC transmission, intermediate platform transmission = grid voltage
     elseif plt.ac==true && plt.kV_oss==plt.kV_pcc && plt.x_plat==true
         res.oppc=HVAC_oppc(xfm_oss.mva,xfm_oss.num,k)
@@ -32,6 +34,9 @@ function costOWPP(owpp)
         res.rlc=res.rlc+HVAC_rlc(cbl_oss,xfm_oss.eta,plt,cst_fct)
         res.opc=0.0
         res.tlc_pcc=0.0
+        res.cm=HVAC_cm(xfm_oss.num,xfm_oss.mc,xfm_oss.fr,xfm_oss.mttr,k.cf)
+        res.cm=res.cm+HVAC_cm(cbl_pcc.num,cbl_pcc.mc,cbl_pcc.fr,cbl_pcc.mttr,k.cf)
+        res.cm=res.cm+HVAC_cm(cbl_oss.num,cbl_oss.mc,cbl_oss.fr,cbl_oss.mttr,k.cf)
     #AC transmission, no intermediate platform transmission != grid voltage
     elseif plt.ac==true && plt.kV_oss!=plt.kV_pcc && plt.x_plat==false
         res.oppc=HVAC_oppc(xfm_oss.mva,xfm_oss.num,k)
@@ -41,6 +46,9 @@ function costOWPP(owpp)
         res.rlc=HVAC_rlc(cbl_pcc,xfm_oss.eta,plt,cst_fct)
         res.opc=HVAC_opc(xfm_oss.mva,xfm_oss.num)
         res.tlc_pcc=HVAC_tlcPCC(cbl_pcc,xfm_oss.eta,plt,cst_fct)
+        res.cm=HVAC_cm(xfm_oss.num,xfm_oss.mc,xfm_oss.fr,xfm_oss.mttr,k.cf)
+        res.cm=res.cm+HVAC_cm(cbl_pcc.num,cbl_pcc.mc,cbl_pcc.fr,cbl_pcc.mttr,k.cf)
+        res.cm=res.cm+HVAC_cm(xfm_pcc.num,xfm_pcc.mc,xfm_pcc.fr,xfm_pcc.mttr,k.cf)
     #AC transmission, intermediate platform transmission != grid voltage
     elseif plt.ac==true && plt.kV_oss!=plt.kV_pcc && plt.x_plat==true
         res.oppc=HVAC_oppc(xfm_oss.mva,xfm_oss.num,k)
@@ -56,6 +64,10 @@ function costOWPP(owpp)
         res.tlc_pcc=HVAC_tlcPCC(cbl_pcc,xfm_oss.eta,plt,cst_fct)
         res.tlc_pcc=res.tlc_pcc+HVAC_tlcPCC(cbl_pcc,xfm_oss.eta,plt,cst_fct)
         res.tlc_pcc=res.tlc_pcc-(plt.mva_oss*plt.pf*xfm_oss.eta*cst_fct*(1-xfm_oss.eta))
+        res.cm=HVAC_cm(xfm_oss.num,xfm_oss.mc,xfm_oss.fr,xfm_oss.mttr,k.cf)
+        res.cm=res.cm+HVAC_cm(cbl_pcc.num,cbl_pcc.mc,cbl_pcc.fr,cbl_pcc.mttr,k.cf)
+        res.cm=res.cm+HVAC_cm(cbl_pcc.num,cbl_pcc.mc,cbl_pcc.fr,cbl_pcc.mttr,k.cf)
+        res.cm=res.cm+HVAC_cm(xfm_pcc.num,xfm_pcc.mc,xfm_pcc.fr,xfm_pcc.mttr,k.cf)
     #DC transmission, no intermediate platform
     elseif plt.ac==false && plt.x_plat==false
 
@@ -63,8 +75,22 @@ function costOWPP(owpp)
     else owpp.plant.ac==false && owpp.plant.x_plat==true
 
     end
+    plt.mva_pcc=setPCC_mva(plt.mva_oss,res,cst_fct)
     getEENS(owpp)
     return nothing
+end
+#############################################
+function HVAC_cm(num,mc,fr,mttr,cf)
+    A=(num*mc)
+    B=(1/fr)
+    C=(mttr*30.0*24.0)/8760.0
+    cm=cf*(A/(B+C))
+    return cm
+end
+#############################################
+function setPCC_mva(mva_oss,res,cst_fct)
+    mva_pcc=mva_oss-((res.tlc_oss+res.rlc+res.tlc_pcc)/cst_fct)
+    return mva_pcc
 end
 #############################################
 function HVAC_oppc(mva,num,k)
@@ -117,9 +143,10 @@ end
 function HVAC_tlcPCC(cbl,eta,plt,cst_fct)
     #PCC tlc calculation
     A=plt.mva_oss*plt.pf*eta
-    B=(cbl.num*(cbl.volt))
-    C=cbl.ohm*cbl.length*cbl.num
-    D=A-(A/B)^2*C
+    B=(cbl.volt)
+    I=(A/B)
+    R=(cbl.ohm*cbl.length)/cbl.num
+    D=A-I^2*R
     tlc_pcc=D*(1-eta)*cst_fct
     return tlc_pcc
 end
@@ -129,3 +156,7 @@ function HVAC_xplat()
     return cst
 end
 #############################################
+function cst_ttl(res)
+    ttl=res.oppc+res.opc+res.tlc_pcc+res.tlc_oss+res.rlc+res.qc+res.cbc+res.cm+res.eens
+    return ttl
+end

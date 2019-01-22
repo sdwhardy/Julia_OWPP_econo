@@ -66,7 +66,7 @@ mutable struct results
      qc::Float64
      cbc::Float64
      rlc::Float64
-     mc::Float64
+     cm::Float64
      eens::Float64
 end
 results()=results(0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0)
@@ -82,8 +82,9 @@ mutable struct cst_ks
    life::Float64
    T_op::Float64
    E_op::Float64
+   cf::Float64
 end
-cst_ks()=cst_ks(0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0)
+cst_ks()=cst_ks(0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0)
 ###################################################################
 mutable struct plant
    ac::Bool
