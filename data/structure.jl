@@ -77,6 +77,7 @@ mutable struct cst_ks
    dc::Float64
    f_ct::Float64
    p_ct::Float64
+   c_ct::Float64
    Qc_oss::Float64
    Qc_pcc::Float64
    life::Float64
@@ -84,7 +85,7 @@ mutable struct cst_ks
    E_op::Float64
    cf::Float64
 end
-cst_ks()=cst_ks(0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0)
+cst_ks()=cst_ks(0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0)
 ###################################################################
 mutable struct plant
    ac::Bool

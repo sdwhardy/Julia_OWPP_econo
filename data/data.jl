@@ -1,9 +1,9 @@
 #################################################################
 function basic_data()
     #ac:true, dc:false
-    acdc=true
+    acdc=false
     #compensation platform(ac) or ac collection(dc)?
-    x_plat=false
+    x_plat=true
     #OWPP capacity
     mva=500.0
     #capacity factor of opwp equipment
@@ -13,15 +13,15 @@ function basic_data()
     #onshore grid voltage
     kV_pcc=400.0
     #owpp transmission voltage
-    kV_oss=400.0
+    kV_oss=150.0
     #OWPP distance from shore to (1st) platform
-    km_pcc=55.0
+    km_pcc=50.0
     #Distance from 1st to 2nd platform
     km_oss=5.0
     #transmission cable size
-    cbl_pcc=800.0
+    cbl_pcc=1200.0
     #2nd cable size for extra platform
-    cbl_oss=500.0
+    cbl_oss=800.0
     #number of parralle xformers
     num_xfm=1
     #power factor
@@ -38,10 +38,12 @@ function getCost_ks()
         FC_dc=28.0
     #penalization factor for different than 2 xfrms
         dc=0.2
-    #plant variable cost
+    #farm variable cost
         f_ct=0.0224
     #platform variable cost
         p_ct=0.028
+    #converter variable cost
+        c_ct=0.1232
     #Q cost offshore
         Qc_oss=0.028
     #Q cost onshore
@@ -54,25 +56,40 @@ function getCost_ks()
         E_op=56.0*10^(-6)
     #Capitalization factor
         cf=10
-    ks=cst_ks(FC_ac,FC_dc,dc,f_ct,p_ct,Qc_oss,Qc_pcc,life,T_op,E_op,cf)
+    ks=cst_ks(FC_ac,FC_dc,dc,f_ct,p_ct,c_ct,Qc_oss,Qc_pcc,life,T_op,E_op,cf)
     return ks
 end
 #################################################################
 function cblOPT()
     #Possible cables
-    #%kV,cm^2,mohms/km,nF/km,Amps,10^3 pounds/km
-    cb0=[220,500,48.9,136,732,815]
-    #cb0=[132,1000,48.9,10,945,815]
-    cb1=[220,630,39.1,151,808,850]
-    cb2=[220,800,31.9,163,879,975]
-    cb3=[220,1000,27.0,177,942,1000]
-    cb4=[400,800,31.4,130,870,1400]
-    cb5=[400,1000,26.5,140,932,1550]
-    cb6=[400,1200,22.1,170,986,1700]
-    cb7=[400,1400,18.9,180,1015,1850]
-    cb8=[400,1600,16.6,190,1036,2000]
-    cb9=[400,2000,13.2,200,1078,2150]
-    return [cb0,cb1,cb2,cb3,cb4,cb5,cb6,cb7,cb8,cb9]
+    #%kV,cm^2,mohms/km,nF/km,Amps,10^3 euros/km
+    #Ac Cables
+    p2e=1.0
+    cb0=[132,630,39.5,209,818,685*p2e]
+    cb1=[132,800,32.4,217,888,795*p2e]
+    cb2=[132,1000,27.5,238,949,860*p2e]
+    cb3=[220,500,48.9,136,732,815*p2e]
+    cb4=[220,630,39.1,151,808,850*p2e]
+    cb5=[220,800,31.9,163,879,975*p2e]
+    cb6=[220,1000,27.0,177,942,1000*p2e]
+    cb7=[400,800,31.4,130,870,1400*p2e]
+    cb8=[400,1000,26.5,140,932,1550*p2e]
+    cb9=[400,1200,22.1,170,986,1700*p2e]
+    cb10=[400,1400,18.9,180,1015,1850*p2e]
+    cb11=[400,1600,16.6,190,1036,2000*p2e]
+    cb12=[400,2000,13.2,200,1078,2150*p2e]
+    #Dc Cables
+    cb13=[150,1000,22.4,0.0,1644,670*p2e]
+    cb14=[150,1200,19.2,0.0,1791,730*p2e]
+    cb15=[150,1400,16.5,0.0,1962,785*p2e]
+    cb16=[150,1600,14.4,0.0,2123,840*p2e]
+    cb17=[150,2000,11.5,0.0,2407,900*p2e]
+    cb18=[300,1000,22.4,0.0,1644,855*p2e]
+    cb19=[300,1200,19.2,0.0,1791,940*p2e]
+    cb20=[300,1400,16.5,0.0,1962,1015*p2e]
+    cb21=[300,1600,14.4,0.0,2123,1090*p2e]
+    cb22=[300,2000,11.5,0.0,2407,1175*p2e]
+    return [cb0,cb1,cb2,cb3,cb4,cb5,cb6,cb7,cb8,cb9,cb10,cb11,cb12,cb13,cb14,cb15,cb16,cb17,cb18,cb19,cb20,cb21,cb22]
 end
 #################################################################
 function getCBL_fail(cbl)
@@ -102,12 +119,12 @@ function getOSS_fail(xfm)
     return nothing
 end
 ########################################################
-function getCONV_fail(xfm)
+function getCONV_fail(conv)
     #failure data
     #Converters
-    conv.fr=0.56#/yr
+    conv.fr=0.12#/yr
     conv.mttr=1#month
-    conv.mc=2.8#
+    conv.mc=0.56#
     return nothing
 end
 ########################################################

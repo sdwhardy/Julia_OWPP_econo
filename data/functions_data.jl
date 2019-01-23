@@ -7,12 +7,14 @@ function newFarm(dataIn)
     myOWPP.cost.cst_ks=getCost_ks()
     #Set equipment
     #Set CableS
+    #To get ac collector with DC system this needs to be moved inside XFM ifs
+    #as voltage is wrong for Ac cable.
     if dataIn.x_plat==false
-        myOWPP.eqp.cbl_pcc=getCBL_data(dataIn.kV_oss,dataIn.cbl_pcc,dataIn.km_pcc,dataIn.mva,dataIn.cap_fact,dataIn.freq)
+        myOWPP.eqp.cbl_pcc=getCBL_data(dataIn.kV_oss,dataIn.cbl_pcc,dataIn.km_pcc,dataIn.mva,dataIn.cap_fact,dataIn.freq,dataIn.ac)
         myOWPP.plant.mva_oss=min(myOWPP.eqp.cbl_pcc.mva*myOWPP.eqp.cbl_pcc.num,myOWPP.plant.mva)
     else
-        myOWPP.eqp.cbl_pcc=getCBL_data(dataIn.kV_oss,dataIn.cbl_pcc,dataIn.km_pcc,dataIn.mva,dataIn.cap_fact,dataIn.freq)
-        myOWPP.eqp.cbl_oss=getCBL_data(dataIn.kV_oss,dataIn.cbl_oss,dataIn.km_oss,dataIn.mva,dataIn.cap_fact,dataIn.freq)
+        myOWPP.eqp.cbl_pcc=getCBL_data(dataIn.kV_oss,dataIn.cbl_pcc,dataIn.km_pcc,dataIn.mva,dataIn.cap_fact,dataIn.freq,dataIn.ac)
+        myOWPP.eqp.cbl_oss=getCBL_data(dataIn.kV_oss,dataIn.cbl_oss,dataIn.km_oss,dataIn.mva,dataIn.cap_fact,dataIn.freq,dataIn.ac)
         myOWPP.plant.mva_oss=min(myOWPP.eqp.cbl_oss.mva*myOWPP.eqp.cbl_oss.num,myOWPP.eqp.cbl_pcc.mva*myOWPP.eqp.cbl_pcc.num,myOWPP.plant.mva)
     end
     #Set Xfrmers
@@ -61,6 +63,9 @@ end
 ########################################################
 function getXOSS_data(S,num,kV)
     xfmr=xfm()
+    #BSTremoveTHIS
+    #S=300
+    ###########
     getXFO_basics(xfmr,S,num,kV)
     getOSS_fail(xfmr)
     xfmr.eta=xfoEta()
@@ -68,19 +73,19 @@ function getXOSS_data(S,num,kV)
 end
 ########################################################
 function getCPCC_data(S,num,kV)
-    xfmr=xfm()
-    getXFO_basics(xfmr,S,num,kV)
-    getCONV_fail(xfmr)
-    xfmr.eta=invEta()
-    return xfmr
+    conv=xfm()
+    getCONV_basics(conv,S,num,kV)
+    getCONV_fail(conv)
+    conv.eta=invEta()
+    return conv
 end
 ########################################################
 function getCOSS_data(S,num,kV)
-    xfmr=xfm()
-    getXFO_basics(xfmr,S,num,kV)
-    getCONV_fail(xfmr)
-    xfmr.eta=recEta()
-    return xfmr
+    conv=xfm()
+    getCONV_basics(conv,S,num,kV)
+    getCONV_fail(conv)
+    conv.eta=recEta()
+    return conv
 end
 ########################################################
 function getXPLT_data(S,num,kV)
@@ -105,7 +110,21 @@ function getXFO_basics(xfmr,S,num,kV)
     return nothing
 end
 ########################################################
-function getCBL_data(kV,size,km,mva,cap_fact,freq)
+function getCONV_basics(conv,S,num,V)
+    if num==0.0
+        conv.mva=0.0
+    else
+        conv.mva=S/num
+    end
+    conv.num=num
+    conv.amp=conv.mva/(V*2.0/1000.0)
+    conv.volt=V
+    conv.ohm=0.0
+    conv.cost=0.0
+    return nothing
+end
+########################################################
+function getCBL_data(kV,size,km,mva,cap_fact,freq,ac)
     cbl_data=cbl()
     #kV,cm^2,mohms/km,nF/km,Amps,10^3 pounds/km
     cb=cblOPT()
@@ -120,7 +139,11 @@ function getCBL_data(kV,size,km,mva,cap_fact,freq)
             cbl_data.amp=cb[i][5]
             cbl_data.cost=cb[i][6]
             cbl_data.length=km
-            cbl_data.mva=getCBL_mva(km,cbl_data.volt,cbl_data.amp,cbl_data.farrad,freq)
+            if ac==true
+                cbl_data.mva=getCBL_mva(km,cbl_data.volt,cbl_data.amp,cbl_data.farrad,freq)
+            else
+                cbl_data.mva=cbl_data.amp*cbl_data.volt*2/1000
+            end
         else
         end
     end
