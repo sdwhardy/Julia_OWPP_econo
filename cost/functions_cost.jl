@@ -242,3 +242,13 @@ function cst_ttl(res)
     ttl=res.oppc+res.opc+res.tlc_pcc+res.tlc_oss+res.rlc+res.qc+res.cbc+res.cm+res.eens
     return ttl
 end
+#############################################
+function cst_cpx(res)
+    cpx=res.oppc+res.opc+res.qc+res.cbc
+    return cpx
+end
+#############################################
+function cst_ls(res)
+    ls=res.tlc_pcc+res.tlc_oss+res.rlc
+    return ls
+end
